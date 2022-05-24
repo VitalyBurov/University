@@ -2,7 +2,7 @@ package university.service;
 
 import university.core.entity.Group;
 import university.dao.GroupsPoolDao;
-import university.dao.IGroupDao;
+import university.dao.api.IGroupDao;
 import university.service.api.IGroupService;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class GroupService implements IGroupService {
         }
 
         if(GroupsPoolDao.getInstance().get(group.getId()) != null) {
-            throw new IllegalArgumentException("Student is already exist!!!");
+            throw new IllegalArgumentException("Group is already exist!!!");
         }
 
         dao.create(group);

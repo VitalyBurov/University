@@ -1,7 +1,7 @@
 package university.service;
 
 import university.core.entity.Student;
-import university.dao.IStudentDao;
+import university.dao.api.IStudentDao;
 import university.dao.StudentPoolDao;
 import university.service.api.IStudentService;
 

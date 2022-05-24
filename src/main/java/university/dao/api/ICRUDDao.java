@@ -1,4 +1,4 @@
-package university.dao;
+package university.dao.api;
 
 import java.util.List;
 

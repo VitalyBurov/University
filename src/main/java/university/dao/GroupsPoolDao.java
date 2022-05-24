@@ -1,7 +1,7 @@
 package university.dao;
 
 import university.core.entity.Group;
-import university.core.entity.Student;
+import university.dao.api.IGroupDao;
 
 import java.sql.*;
 import java.util.ArrayList;

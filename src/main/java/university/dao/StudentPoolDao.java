@@ -1,6 +1,7 @@
 package university.dao;
 
 import university.core.entity.Student;
+import university.dao.api.IStudentDao;
 
 import java.sql.*;
 import java.util.ArrayList;
