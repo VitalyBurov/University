@@ -1,21 +1,23 @@
 package university.core.dto;
 
 
-import university.core.entity.Student;
-
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CrossTable implements Serializable {
 
     private String groupName;
-    private List<Student> studentIdList;
+    private List<Long> studentIdList;
 
     public CrossTable(String groupName) {
         this.groupName = groupName;
     }
 
-    public CrossTable(String groupName, List<Student> studentIdList) {
+    public CrossTable() {
+    }
+
+    public CrossTable(String groupName, List<Long> studentIdList) {
         this.groupName = groupName;
         this.studentIdList = studentIdList;
     }
@@ -28,11 +30,29 @@ public class CrossTable implements Serializable {
         this.groupName = groupName;
     }
 
-    public List<Student> getStudentList() {
+    public List<Long> getStudentList() {
         return studentIdList;
     }
 
-    public void setStudentIdList(List<Student> studentIdList) {
+    public void addId(long a) {
+        if (this.studentIdList == null) {
+            this.studentIdList = new ArrayList<>();
+        }
+
+        this.studentIdList.add(a);
+    }
+
+    public void setStudentIdList(List<Long> studentIdList) {
         this.studentIdList = studentIdList;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
     }
 }

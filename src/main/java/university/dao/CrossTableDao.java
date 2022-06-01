@@ -1,13 +1,14 @@
 package university.dao;
 
 import university.core.dto.CrossTable;
-import university.core.entity.Group;
-import university.core.entity.Student;
 import university.dao.api.ICrossTableDao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CrossTableDao implements ICrossTableDao {
 
@@ -18,48 +19,87 @@ public class CrossTableDao implements ICrossTableDao {
 
 
     @Override
-    public void addStudents(Group group) {
+    public void create(CrossTable crossTable) {
+        for (int i = 0; i < crossTable.getStudentList().size(); i++) {
+            try (Connection connection = ConnectionFactory.getConnection();
+                 PreparedStatement preparedStatement = connection.prepareStatement(
+                         "INSERT INTO education.groups_and_students" +
+                                 "(group_name, student_id) \n" +
+                                 "    VALUES (?, ?);"
+                 );
+            ) {
+                preparedStatement.setString(1, crossTable.getGroupName());
+                preparedStatement.setLong(2, crossTable.getStudentList().get(i));
+                {
+                    preparedStatement.executeUpdate();
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @Override
+    public void delete(CrossTable crossTable) {
+        for (int i = 0; i < crossTable.getStudentList().size(); i++) {
+            try (Connection connection = ConnectionFactory.getConnection();
+                 PreparedStatement preparedStatement = connection.prepareStatement(
+                         "DELETE FROM education.groups_and_students" +
+                                 "WHERE group_name = ?\n" +
+                                 "AND student_id = ?;"
+                 );
+            ) {
+                preparedStatement.setString(1, crossTable.getGroupName());
+                preparedStatement.setLong(2, crossTable.getStudentList().get(i));
+                {
+                    preparedStatement.executeUpdate();
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+    }
+
+    @Override
+    public List<CrossTable> readAll() {
         try (Connection connection = ConnectionFactory.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(
-                     "INSERT INTO education.groups_and_students(group_name, student_id) \n" +
-                             "SELECT education.groups.name, education.students.student_id\n" +
-                             "FROM education.students,education.groups\n" +
-                             "WHERE education.groups.name = (SELECT name\n" +
-                             "FROM education.groups\n" +
-                             "WHERE group_name = ?)\n" +
-                             "AND education.students.student_id = ?;"
-             );
-        ) {
-            for (Student student :  group.getStudents()) {
-                preparedStatement.setString(1, group.getName());
-                preparedStatement.setLong(2, student.getId());
-                preparedStatement.executeUpdate();
+                     "SELECT " +
+                             "group_name, student_id " +
+                             "FROM  education.groups_and_students;"
+             );) {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return map(resultSet);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    @Override
-    public void deleteStudents(CrossTable crossTable) {
-        try (Connection connection = ConnectionFactory.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(
-                     "DELETE FROM education.groups_and_students\n" +
-                             "WHERE group_name = \n" +
-                             "(SELECT id FROM education.groups \n" +
-                             "WHERE group_name = ?)\n" +
-                             "AND student_id = \n" +
-                             "(SELECT student_id FROM education.students\n" +
-                             "WHERE students.student_id = ?);")) {
-            for (Student student : crossTable.getStudentList()) {
-                preparedStatement.setString(1,crossTable.getGroupName());
-                preparedStatement.setLong(2,student.getId());
-                preparedStatement.executeUpdate();
+    private List<CrossTable> map(ResultSet rs) throws SQLException {
+        List<CrossTable> crossTableList = new ArrayList<>();
+        CrossTable crossTable = new CrossTable();
+
+        while (rs.next()) {
+            String groupName = rs.getString("group_name");
+
+            if (crossTable.getGroupName() != null && !groupName.equals(crossTable.getGroupName())) {
+                crossTableList.add(crossTable);
+
+                crossTable = new CrossTable();
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+
+            crossTable.setGroupName(rs.getString("group_name"));
+            crossTable.addId(rs.getLong("student_id"));
         }
+
+        if (crossTable.getGroupName() != null) {
+            crossTableList.add(crossTable);
+        }
+        return crossTableList;
     }
+
 
     @Override
     public void close() throws Exception {
@@ -70,3 +110,6 @@ public class CrossTableDao implements ICrossTableDao {
         return instance;
     }
 }
+
+
+

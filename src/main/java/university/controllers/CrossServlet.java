@@ -3,8 +3,8 @@ package university.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import university.core.entity.Student;
-import university.service.StudentService;
+import university.core.dto.CrossTable;
+import university.service.CrossTableService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,19 +13,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 
 
-@WebServlet(name = "StudentServlet", urlPatterns = "/student")
-public class StudentServlet extends HttpServlet {
-    private final StudentService studentService;
+@WebServlet(name = "GroupServlet", urlPatterns = "/groups")
+public class CrossServlet extends HttpServlet {
+
+    private final CrossTableService crossTableService;
     private final ObjectMapper mapper;
 
-    public StudentServlet() {
+    public CrossServlet() {
         this.mapper = new ObjectMapper();
         mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
-               .registerModule(new JavaTimeModule());
-        this.studentService = StudentService.getInstance();
+                .registerModule(new JavaTimeModule());
+        this.crossTableService = CrossTableService.getInstance();
     }
 
     @Override
@@ -33,12 +33,9 @@ public class StudentServlet extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         resp.setContentType("application/json; charset=utf-8");
 
-        List<Student> students = studentService.getAll();
 
         PrintWriter writer = resp.getWriter();
-
-        writer.write(mapper.writeValueAsString(students));
-
+        writer.write(mapper.writeValueAsString(crossTableService.readAll()));
     }
 
     @Override
@@ -46,26 +43,17 @@ public class StudentServlet extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         resp.setContentType("application/json; charset=utf-8");
 
-        Student student = mapper.readValue(req.getInputStream(), Student.class);
-        studentService.create(student);
+        CrossTable crossTable = mapper.readValue(req.getInputStream(), CrossTable.class);
+        crossTableService.create(crossTable);
     }
 
-    @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setCharacterEncoding("UTF-8");
-        resp.setContentType("application/json; charset=utf-8");
-
-        Student student = mapper.readValue(req.getInputStream(), Student.class);
-        long id = Long.parseLong(req.getParameter("id"));
-        studentService.update(id, student);
-    }
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         resp.setContentType("application/json; charset=utf-8");
 
-        long id = Long.parseLong(req.getParameter("id"));
-        studentService.delete(id);
+        CrossTable crossTable = mapper.readValue(req.getInputStream(), CrossTable.class);
+        crossTableService.delete(crossTable);
     }
 }

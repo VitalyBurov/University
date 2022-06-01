@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import university.core.entity.Group;
-import university.core.entity.Student;
 import university.service.GroupService;
-import university.service.StudentService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -40,10 +38,7 @@ public class GroupServlet extends HttpServlet {
 
         PrintWriter writer = resp.getWriter();
 
-        for (Group group : groups) {
-            writer.write(mapper.writeValueAsString(group));
-
-        }
+        writer.write(mapper.writeValueAsString(groups));
     }
 
     @Override
